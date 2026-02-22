@@ -273,6 +273,20 @@
       margin-bottom: 20px;
       color: var(--neon-cyan);
       text-shadow: var(--glow-cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h2 svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .card:not(.collapsed) h2 svg {
+      fill: var(--blood-orange);
+      stroke: var(--blood-orange);
     }
 
     .stat {
@@ -493,7 +507,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>⚡ CLAWUNiT SYSTEM MONITOR ⚡</h1>
+      <h1>CLAWUNiT SYSTEM MONITOR</h1>
       <div class="subtitle">CPU-MAC-MINI // REAL-TIME NEURAL INTERFACE</div>
       <div class="status-line">
         <span class="status-dot"></span>
@@ -505,7 +519,17 @@
       <!-- System Resources -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>🎨 SYSTEM CORE</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="4" width="16" height="16" rx="2"/>
+              <rect x="9" y="9" width="6" height="6"/>
+              <line x1="4" y1="12" x2="2" y2="12"/>
+              <line x1="22" y1="12" x2="20" y2="12"/>
+              <line x1="12" y1="4" x2="12" y2="2"/>
+              <line x1="12" y1="22" x2="12" y2="20"/>
+            </svg>
+            SYSTEM CORE
+          </h2>
           <div class="card-indicator">
             <div class="micro-viz" id="cpu-micro"></div>
             <span id="cpu-micro-value">--</span>
@@ -542,7 +566,17 @@
       <!-- OpenClaw Neural -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>🧠 NEURAL INTERFACE</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="8"/>
+              <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+              <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
+              <circle cx="12" cy="14" r="1.5" fill="currentColor"/>
+              <line x1="8" y1="10" x2="12" y2="14"/>
+              <line x1="16" y1="10" x2="12" y2="14"/>
+            </svg>
+            NEURAL INTERFACE
+          </h2>
           <div class="card-indicator">
             <span id="model-micro">--</span>
             <span class="expand-icon">▼</span>
@@ -571,7 +605,12 @@
       <!-- Heartbeat Monitor -->
       <div class="card large-card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>💓 HEARTBEAT MONITOR</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="2,12 6,12 8,6 10,18 12,12 14,8 16,16 18,12 22,12"/>
+            </svg>
+            HEARTBEAT MONITOR
+          </h2>
           <div class="card-indicator">
             <span>PULSE ACTIVE</span>
             <span class="expand-icon">▼</span>
@@ -587,7 +626,14 @@
       <!-- Network Latency -->
       <div class="card large-card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>📡 NETWORK LATENCY</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12.5C5 12.5 9 8 12 8C15 8 19 12.5 19 12.5"/>
+              <path d="M8 15C8 15 10 13 12 13C14 13 16 15 16 15"/>
+              <circle cx="12" cy="17" r="1" fill="currentColor"/>
+            </svg>
+            NETWORK LATENCY
+          </h2>
           <div class="card-indicator">
             <span id="latency-micro">-- ms</span>
             <span class="expand-icon">▼</span>
@@ -603,7 +649,17 @@
       <!-- Model Switcher -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>🔧 MODEL SELECT</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v6m0 6v6M23 12h-6m-6 0H1"/>
+              <line x1="18.4" y1="5.6" x2="14.8" y2="9.2"/>
+              <line x1="18.4" y1="18.4" x2="14.8" y2="14.8"/>
+              <line x1="5.6" y1="18.4" x2="9.2" y2="14.8"/>
+              <line x1="5.6" y1="5.6" x2="9.2" y2="9.2"/>
+            </svg>
+            MODEL SELECT
+          </h2>
           <div class="card-indicator">
             <span>SWITCH</span>
             <span class="expand-icon">▼</span>
@@ -622,7 +678,15 @@
       <!-- System Info -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>📊 SYSTEM INFO</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            SYSTEM INFO
+          </h2>
           <div class="card-indicator">
             <span id="proc-micro">-- PROC</span>
             <span class="expand-icon">▼</span>
@@ -643,7 +707,14 @@
       <!-- Network I/O -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>🌐 NETWORK I/O</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/>
+            </svg>
+            NETWORK I/O
+          </h2>
           <div class="card-indicator">
             <span id="net-micro">-- KB/s</span>
             <span class="expand-icon">▼</span>
@@ -664,7 +735,15 @@
       <!-- Disk I/O -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>💾 DISK I/O</h2>
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18v12H3z"/>
+              <line x1="7" y1="10" x2="17" y2="10"/>
+              <line x1="7" y1="14" x2="17" y2="14"/>
+              <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            </svg>
+            DISK I/O
+          </h2>
           <div class="card-indicator">
             <span id="disk-micro">-- KB/s</span>
             <span class="expand-icon">▼</span>
