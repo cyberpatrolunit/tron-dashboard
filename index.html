@@ -310,138 +310,83 @@
       filter: drop-shadow(0 0 5px var(--neon-cyan));
     }
 
-    /* Responsive - iPhone Portrait Micro-Scale */
+    /* Responsive - Mobile Compact */
     @media (max-width: 768px) {
-      body {
-        padding: 0;
-      }
-
       .container {
-        padding: 10px 8px;
+        padding: 15px 10px;
       }
 
-      /* Compact header */
       header {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
       }
 
       h1 {
-        font-size: 18px;
+        font-size: 20px;
         letter-spacing: 2px;
-        margin-bottom: 5px;
-      }
-
-      .subtitle {
-        font-size: 8px;
-        letter-spacing: 1px;
-      }
-
-      .status-line {
-        margin-top: 8px;
-        padding: 5px 15px;
-        font-size: 8px;
-        letter-spacing: 1px;
-      }
-
-      /* Compact grid */
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-
-      /* Micro cards */
-      .card {
-        padding: 10px;
-        border-width: 1px;
-      }
-
-      .card h2 {
-        font-size: 11px;
-        letter-spacing: 1px;
         margin-bottom: 8px;
       }
 
-      .stat {
-        padding: 6px 0;
+      .subtitle {
+        font-size: 9px;
+        letter-spacing: 2px;
       }
 
-      .stat-label {
-        font-size: 8px;
-      }
-
-      .stat-value {
-        font-size: 10px;
-      }
-
-      .progress-bar {
-        height: 4px;
-        margin-top: 4px;
-      }
-
-      /* Compact charts */
-      .chart-container {
-        height: 80px;
-        margin-top: 8px;
-      }
-
-      /* Micro model buttons */
-      .model-buttons {
-        gap: 6px;
-      }
-
-      .model-btn {
-        padding: 6px;
-        font-size: 8px;
-        letter-spacing: 0.5px;
-      }
-
-      /* Compact timestamp */
-      .timestamp {
-        font-size: 7px;
+      .status-line {
         margin-top: 10px;
-      }
-
-      /* Hide scan line on mobile for performance */
-      body::after {
-        display: none;
-      }
-
-      /* Smaller grid background */
-      body::before {
-        background-size: 30px 30px;
-      }
-
-      /* Make large cards single column too */
-      .large-card {
-        grid-column: 1;
-      }
-    }
-
-    /* Extra compact for very small screens (iPhone SE, etc) */
-    @media (max-width: 400px) {
-      h1 {
-        font-size: 16px;
-      }
-
-      .card {
-        padding: 8px;
-      }
-
-      .card h2 {
-        font-size: 10px;
-      }
-
-      .stat-label {
-        font-size: 7px;
-      }
-
-      .stat-value {
+        padding: 8px 20px;
         font-size: 9px;
       }
 
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .card h2 {
+        font-size: 13px;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+
+      .stat {
+        padding: 8px 0;
+        font-size: 11px;
+      }
+
+      .stat-label {
+        font-size: 9px;
+      }
+
+      .stat-value {
+        font-size: 12px;
+      }
+
       .chart-container {
-        height: 60px;
+        height: 120px;
+      }
+
+      .model-buttons {
+        gap: 8px;
+      }
+
+      .model-btn {
+        padding: 10px;
+        font-size: 10px;
+      }
+
+      .timestamp {
+        font-size: 9px;
+        margin-top: 15px;
+      }
+
+      /* Optimize animations for mobile */
+      body::before {
+        background-size: 35px 35px;
       }
     }
   </style>
