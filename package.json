@@ -1,0 +1,12 @@
+{
+  "name": "openclaw-dashboard",
+  "version": "1.0.0",
+  "description": "System monitoring dashboard for CPU Mac Mini",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

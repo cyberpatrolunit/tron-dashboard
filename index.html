@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRON // CPU SYSTEM MONITOR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --neon-cyan: #00ffff;
+      --neon-blue: #0080ff;
+      --dark-bg: #000810;
+      --grid-color: rgba(0, 255, 255, 0.15);
+      --glow-cyan: 0 0 10px rgba(0, 255, 255, 0.8),
+                   0 0 20px rgba(0, 255, 255, 0.5),
+                   0 0 30px rgba(0, 255, 255, 0.3);
+      --glow-blue: 0 0 10px rgba(0, 128, 255, 0.8),
+                   0 0 20px rgba(0, 128, 255, 0.5);
+    }
+
+    body {
+      font-family: 'Orbitron', monospace;
+      background: var(--dark-bg);
+      color: var(--neon-cyan);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes gridMove {
+      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+      100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+    }
+
+    /* Scan line effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to bottom, 
+        rgba(0, 255, 255, 0.8), 
+        rgba(0, 255, 255, 0));
+      animation: scan 3s linear infinite;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      text-shadow: var(--glow-cyan);
+      margin-bottom: 10px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .subtitle {
+      font-size: 14px;
+      letter-spacing: 4px;
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+
+    .status-line {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 30px;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    /* Grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(0, 8, 16, 0.9);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: var(--glow-cyan), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      padding: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--neon-cyan), 
+        transparent);
+      animation: borderScan 2s linear infinite;
+    }
+
+    @keyframes borderScan {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: var(--neon-cyan);
+      text-shadow: var(--glow-cyan);
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+      font-size: 13px;
+    }
+
+    .stat:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: rgba(0, 255, 255, 0.7);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .stat-value {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      font-size: 16px;
+      text-shadow: var(--glow-cyan);
+    }
+
+    /* Progress bars */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 255, 255, 0.1);
+      margin-top: 8px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, 
+        var(--neon-cyan), 
+        var(--neon-blue));
+      box-shadow: 0 0 10px var(--neon-cyan);
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.6));
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-20px); }
+      100% { transform: translateX(20px); }
+    }
+
+    /* Charts */
+    .chart-container {
+      position: relative;
+      height: 200px;
+      margin-top: 15px;
+    }
+
+    canvas {
+      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5));
+    }
+
+    /* Model buttons */
+    .model-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .model-btn {
+      padding: 12px;
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      background: rgba(0, 8, 16, 0.8);
+      color: var(--neon-cyan);
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .model-btn:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+      background: rgba(0, 255, 255, 0.1);
+    }
+
+    .model-btn.active {
+      border-color: var(--neon-cyan);
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* Timestamp */
+    .timestamp {
+      text-align: center;
+      color: rgba(0, 255, 255, 0.5);
+      font-size: 10px;
+      margin-top: 30px;
+      letter-spacing: 2px;
+    }
+
+    /* Large display cards */
+    .large-card {
+      grid-column: 1 / -1;
+    }
+
+    /* Heartbeat visualization */
+    .heartbeat-line {
+      stroke: var(--neon-cyan);
+      stroke-width: 2;
+      fill: none;
+      filter: drop-shadow(0 0 5px var(--neon-cyan));
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+        letter-spacing: 4px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ TRON SYSTEM MONITOR ⚡</h1>
+      <div class="subtitle">CPU-MAC-MINI // OPENCLAW NEURAL INTERFACE</div>
+      <div class="status-line">
+        <span class="status-dot"></span>
+        ONLINE // MONITORING ACTIVE
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- System Resources -->
+      <div class="card">
+        <h2>⚡ SYSTEM CORE</h2>
+        <div class="stat">
+          <span class="stat-label">CPU Load</span>
+          <span class="stat-value" id="cpu-usage">--</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="cpu-progress"></div>
+        </div>
+        
+        <div class="stat">
+          <span class="stat-label">Memory</span>
+          <span class="stat-value" id="memory-usage">--</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="memory-progress"></div>
+        </div>
+        
+        <div class="stat">
+          <span class="stat-label">Disk Usage</span>
+          <span class="stat-value" id="disk-usage">--</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="disk-progress"></div>
+        </div>
+      </div>
+
+      <!-- OpenClaw Neural -->
+      <div class="card">
+        <h2>🧠 NEURAL INTERFACE</h2>
+        <div class="stat">
+          <span class="stat-label">Model</span>
+          <span class="stat-value" id="current-model">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Tokens</span>
+          <span class="stat-value" id="tokens">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Session Age</span>
+          <span class="stat-value" id="session-age">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Uptime</span>
+          <span class="stat-value" id="uptime">--</span>
+        </div>
+      </div>
+
+      <!-- Heartbeat Monitor -->
+      <div class="card large-card">
+        <h2>💓 HEARTBEAT MONITOR</h2>
+        <div class="chart-container">
+          <canvas id="heartbeatChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Network Latency -->
+      <div class="card large-card">
+        <h2>📡 NETWORK LATENCY</h2>
+        <div class="chart-container">
+          <canvas id="latencyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Model Switcher -->
+      <div class="card">
+        <h2>🔧 MODEL SELECT</h2>
+        <div class="model-buttons">
+          <button class="model-btn" onclick="switchModel('haiku', this)">HAIKU</button>
+          <button class="model-btn active" onclick="switchModel('sonnet', this)">SONNET</button>
+          <button class="model-btn" onclick="switchModel('opus', this)">OPUS</button>
+          <button class="model-btn" onclick="switchModel('qwen', this)">QWEN</button>
+        </div>
+      </div>
+
+      <!-- System Info -->
+      <div class="card">
+        <h2>📊 SYSTEM INFO</h2>
+        <div class="stat">
+          <span class="stat-label">Processes</span>
+          <span class="stat-value" id="processes">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Power Draw</span>
+          <span class="stat-value" id="power">--</span>
+        </div>
+      </div>
+
+      <!-- Network I/O -->
+      <div class="card">
+        <h2>🌐 NETWORK I/O</h2>
+        <div class="stat">
+          <span class="stat-label">↓ RX Rate</span>
+          <span class="stat-value" id="net-rx">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">↑ TX Rate</span>
+          <span class="stat-value" id="net-tx">--</span>
+        </div>
+      </div>
+
+      <!-- Disk I/O -->
+      <div class="card">
+        <h2>💾 DISK I/O</h2>
+        <div class="stat">
+          <span class="stat-label">Read Speed</span>
+          <span class="stat-value" id="disk-read">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Write Speed</span>
+          <span class="stat-value" id="disk-write">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timestamp" id="last-update">LAST SYNC: --</div>
+  </div>
+
+  <script>
+    let heartbeatChart, latencyChart;
+    const heartbeatData = [];
+    const latencyData = [];
+    const maxDataPoints = 30;
+
+    // Initialize charts
+    function initCharts() {
+      // Heartbeat chart
+      const heartbeatCtx = document.getElementById('heartbeatChart').getContext('2d');
+      heartbeatChart = new Chart(heartbeatCtx, {
+        type: 'line',
+        data: {
+          labels: Array(maxDataPoints).fill(''),
+          datasets: [{
+            data: Array(maxDataPoints).fill(0),
+            borderColor: '#00ffff',
+            backgroundColor: 'rgba(0, 255, 255, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: 'rgba(0, 255, 255, 0.2)'
+              },
+              ticks: {
+                color: '#00ffff'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(0, 255, 255, 0.1)'
+              },
+              ticks: {
+                display: false
+              }
+            }
+          },
+          animation: {
+            duration: 0
+          }
+        }
+      });
+
+      // Latency chart
+      const latencyCtx = document.getElementById('latencyChart').getContext('2d');
+      latencyChart = new Chart(latencyCtx, {
+        type: 'line',
+        data: {
+          labels: Array(maxDataPoints).fill(''),
+          datasets: [{
+            data: Array(maxDataPoints).fill(0),
+            borderColor: '#0080ff',
+            backgroundColor: 'rgba(0, 128, 255, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 128, 255, 0.2)'
+              },
+              ticks: {
+                color: '#0080ff',
+                callback: function(value) {
+                  return value + 'ms';
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(0, 128, 255, 0.1)'
+              },
+              ticks: {
+                display: false
+              }
+            }
+          },
+          animation: {
+            duration: 0
+          }
+        }
+      });
+    }
+
+    // Update heartbeat data
+    function updateHeartbeat() {
+      // Simulate heartbeat (will be replaced with actual heartbeat checks)
+      const beat = 50 + Math.random() * 30 + Math.sin(Date.now() / 200) * 20;
+      heartbeatData.push(beat);
+      if (heartbeatData.length > maxDataPoints) {
+        heartbeatData.shift();
+      }
+      heartbeatChart.data.datasets[0].data = heartbeatData;
+      heartbeatChart.update();
+    }
+
+    // Update latency data
+    async function updateLatency() {
+      const start = Date.now();
+      try {
+        await fetch('/api/stats');
+        const latency = Date.now() - start;
+        latencyData.push(latency);
+        if (latencyData.length > maxDataPoints) {
+          latencyData.shift();
+        }
+        latencyChart.data.datasets[0].data = latencyData;
+        latencyChart.update();
+      } catch (error) {
+        console.error('Latency check failed:', error);
+      }
+    }
+
+    // Fetch stats
+    async function fetchStats() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        
+        const cpuTotal = data.cpu.user + data.cpu.system;
+        document.getElementById('cpu-usage').textContent = `${cpuTotal.toFixed(1)}%`;
+        const cpuProgress = document.getElementById('cpu-progress');
+        cpuProgress.style.width = `${cpuTotal}%`;
+        
+        const memFree = parseFloat(data.memory.free || '0');
+        const memActive = parseFloat(data.memory.active || '0');
+        const memTotal = memFree + memActive;
+        const memPercent = memTotal > 0 ? ((memActive / memTotal) * 100) : 0;
+        document.getElementById('memory-usage').textContent = `${memActive.toFixed(1)}GB / ${memTotal.toFixed(1)}GB`;
+        document.getElementById('memory-progress').style.width = `${memPercent}%`;
+        
+        document.getElementById('disk-usage').textContent = `${data.disk.used} / ${data.disk.available}`;
+        const diskPercent = parseFloat(data.disk.percent);
+        document.getElementById('disk-progress').style.width = data.disk.percent;
+        
+        document.getElementById('uptime').textContent = data.uptime.split('load')[0].trim();
+        document.getElementById('processes').textContent = data.processes;
+        document.getElementById('network').textContent = data.network;
+        
+        document.getElementById('last-update').textContent = `LAST SYNC: ${new Date().toLocaleTimeString()}`;
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+
+    async function fetchOpenClaw() {
+      try {
+        const response = await fetch('/api/openclaw');
+        const data = await response.json();
+        
+        document.getElementById('current-model').textContent = data.model.split('/')[1] || data.model;
+        document.getElementById('tokens').textContent = data.tokens ? 
+          `${data.tokens.toLocaleString()} (${data.tokensUsed}%)` : '--';
+        document.getElementById('session-age').textContent = data.age;
+      } catch (error) {
+        console.error('Error fetching OpenClaw data:', error);
+      }
+    }
+
+    async function switchModel(model, btnElement) {
+      try {
+        const response = await fetch('/api/model/switch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          document.querySelectorAll('.model-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          btnElement.classList.add('active');
+          
+          const originalText = btnElement.innerHTML;
+          btnElement.innerHTML = '✓ ACTIVE';
+          setTimeout(() => {
+            btnElement.innerHTML = originalText;
+          }, 2000);
+          
+          fetchOpenClaw();
+        }
+      } catch (error) {
+        console.error('Error switching model:', error);
+      }
+    }
+
+    // Fetch real-time high-frequency stats
+    async function fetchRealtime() {
+      try {
+        const response = await fetch('/api/realtime');
+        const data = await response.json();
+        
+        // Update network I/O
+        document.getElementById('net-rx').textContent = data.network.rxRateFormatted;
+        document.getElementById('net-tx').textContent = data.network.txRateFormatted;
+        
+        // Update disk I/O
+        document.getElementById('disk-read').textContent = `${data.disk.readKBps} KB/s`;
+        document.getElementById('disk-write').textContent = `${data.disk.writeKBps} KB/s`;
+        
+        // Update power
+        document.getElementById('power').textContent = data.power.formatted;
+      } catch (error) {
+        console.error('Error fetching realtime stats:', error);
+      }
+    }
+
+    // Initialize
+    initCharts();
+    fetchStats();
+    fetchOpenClaw();
+    fetchRealtime();
+
+    // Update intervals - high frequency for realtime data
+    setInterval(fetchStats, 3000);        // System stats every 3 seconds
+    setInterval(fetchOpenClaw, 10000);    // OpenClaw stats every 10 seconds
+    setInterval(fetchRealtime, 1000);     // Realtime stats every 1 second
+    setInterval(updateHeartbeat, 100);    // Heartbeat visual every 100ms
+    setInterval(updateLatency, 2000);     // Network latency every 2 seconds
+
+    // MIDI Player (keeping from original)
+    class MIDIPlayer {
+      constructor() {
+        this.tracks = ['/midi/shake_it_off.mid', '/midi/love_story.mid', '/midi/blank_space.mid'];
+        this.synth = null;
+        this.currentPart = null;
+        this.unlocked = false;
+        this.init();
+      }
+      async init() {
+        const needsUnlock = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (!needsUnlock) {
+          setTimeout(async () => {
+            await Tone.start();
+            this.startAudio();
+          }, 2000);
+        }
+      }
+      startAudio() {
+        if (this.unlocked) return;
+        this.unlocked = true;
+        this.synth = new Tone.PolySynth(Tone.Synth, {
+          volume: -6,
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
+        }).toDestination();
+        this.playRandom();
+      }
+      async playRandom() {
+        const randomTrack = this.tracks[Math.floor(Math.random() * this.tracks.length)];
+        try {
+          const midi = await Midi.fromUrl(randomTrack);
+          if (this.currentPart) {
+            this.currentPart.dispose();
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+          }
+          const track = midi.tracks.find(t => t.notes.length > 0);
+          if (!track) return setTimeout(() => this.playRandom(), 5000);
+          this.currentPart = new Tone.Part((time, note) => {
+            this.synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+          }, track.notes.map(note => ({
+            time: note.time, name: note.name, duration: note.duration, velocity: note.velocity
+          })));
+          this.currentPart.loop = false;
+          this.currentPart.start(0);
+          Tone.Transport.schedule(() => this.playRandom(), `+${track.duration + 2}`);
+          if (Tone.Transport.state !== 'started') Tone.Transport.start();
+        } catch (error) {
+          setTimeout(() => this.playRandom(), 10000);
+        }
+      }
+    }
+    const midiPlayer = new MIDIPlayer();
+  </script>
+</body>
+</html>

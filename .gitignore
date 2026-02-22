@@ -1,0 +1,12 @@
+# Logs
+*.log
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+
+# Backup files
+*.backup
+*-old.html
