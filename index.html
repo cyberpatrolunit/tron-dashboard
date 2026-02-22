@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TRON // CPU SYSTEM MONITOR</title>
+  <title>CLAWUNiT // SYSTEM MONITOR</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -20,6 +20,7 @@
     :root {
       --neon-cyan: #00ffff;
       --neon-blue: #0080ff;
+      --blood-orange: #ff4500;
       --dark-bg: #000810;
       --grid-color: rgba(0, 255, 255, 0.15);
       --glow-cyan: 0 0 10px rgba(0, 255, 255, 0.8),
@@ -27,6 +28,9 @@
                    0 0 30px rgba(0, 255, 255, 0.3);
       --glow-blue: 0 0 10px rgba(0, 128, 255, 0.8),
                    0 0 20px rgba(0, 128, 255, 0.5);
+      --glow-orange: 0 0 10px rgba(255, 69, 0, 0.8),
+                     0 0 20px rgba(255, 69, 0, 0.5),
+                     0 0 30px rgba(255, 69, 0, 0.3);
     }
 
     body {
@@ -155,6 +159,29 @@
       box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
     }
 
+    /* Active/Expanded state - Blood Orange */
+    .card:not(.collapsed) {
+      border-color: var(--blood-orange);
+      box-shadow: var(--glow-orange), inset 0 0 20px rgba(255, 69, 0, 0.1);
+    }
+
+    .card:not(.collapsed) h2 {
+      color: var(--blood-orange);
+      text-shadow: var(--glow-orange);
+    }
+
+    .card:not(.collapsed) .progress-fill {
+      background: linear-gradient(90deg, 
+        var(--blood-orange), 
+        #ff6b35);
+      box-shadow: 0 0 10px var(--blood-orange);
+    }
+
+    .card:not(.collapsed) .stat-value {
+      color: var(--blood-orange);
+      text-shadow: var(--glow-orange);
+    }
+
     .card.collapsed .card-content {
       display: none;
     }
@@ -199,11 +226,17 @@
     .expand-icon {
       font-size: 10px;
       opacity: 0.6;
-      transition: transform 0.3s;
+      transition: transform 0.3s, color 0.3s;
     }
 
     .card.collapsed .expand-icon {
       transform: rotate(180deg);
+    }
+
+    .card:not(.collapsed) .expand-icon {
+      color: var(--blood-orange);
+      text-shadow: var(--glow-orange);
+      opacity: 1;
     }
 
     .card::before {
@@ -218,6 +251,13 @@
         var(--neon-cyan), 
         transparent);
       animation: borderScan 2s linear infinite;
+    }
+
+    .card:not(.collapsed)::before {
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--blood-orange), 
+        transparent);
     }
 
     @keyframes borderScan {
@@ -341,10 +381,10 @@
     }
 
     .model-btn.active {
-      border-color: var(--neon-cyan);
-      background: var(--neon-cyan);
+      border-color: var(--blood-orange);
+      background: var(--blood-orange);
       color: #000;
-      box-shadow: var(--glow-cyan);
+      box-shadow: var(--glow-orange);
     }
 
     /* Timestamp */
@@ -453,8 +493,8 @@
 <body>
   <div class="container">
     <header>
-      <h1>⚡ TRON SYSTEM MONITOR ⚡</h1>
-      <div class="subtitle">CPU-MAC-MINI // OPENCLAW NEURAL INTERFACE</div>
+      <h1>⚡ CLAWUNiT SYSTEM MONITOR ⚡</h1>
+      <div class="subtitle">CPU-MAC-MINI // REAL-TIME NEURAL INTERFACE</div>
       <div class="status-line">
         <span class="status-dot"></span>
         ONLINE // MONITORING ACTIVE
@@ -465,7 +505,7 @@
       <!-- System Resources -->
       <div class="card collapsed" onclick="toggleCard(this)">
         <div class="card-header">
-          <h2>⚡ SYSTEM CORE</h2>
+          <h2>🎨 SYSTEM CORE</h2>
           <div class="card-indicator">
             <div class="micro-viz" id="cpu-micro"></div>
             <span id="cpu-micro-value">--</span>
