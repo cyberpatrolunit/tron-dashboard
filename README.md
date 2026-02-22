@@ -1,13 +1,13 @@
-# ⚡ TRON System Monitor
+# ⚡ CLAWUNiT System Monitor
 
-A retro-futuristic system monitoring dashboard inspired by 1980s Tron aesthetics. Real-time visualization of system resources, network activity, and OpenClaw neural interface metrics.
+A retro-futuristic system monitoring dashboard inspired by 1980s CLAWUNiT aesthetics. Real-time visualization of system resources, network activity, and OpenClaw neural interface metrics.
 
-![TRON Dashboard](https://img.shields.io/badge/style-TRON-00ffff?style=for-the-badge&logo=tron)
+![CLAWUNiT Dashboard](https://img.shields.io/badge/style-CLAWUNiT-00ffff?style=for-the-badge&logo=tron)
 
 ## ✨ Features
 
 ### Visual Design
-- 🎮 **80s Tron Aesthetic** - Neon cyan/blue glowing effects
+- 🎮 **80s CLAWUNiT Aesthetic** - Neon cyan/blue glowing effects
 - 🌐 **Animated Grid Background** - 3D perspective grid with continuous animation
 - 📺 **Scan Line Effects** - Classic CRT monitor simulation
 - ✨ **Glowing Borders** - Animated light sweeps and shimmer effects
@@ -126,7 +126,7 @@ MIT License - feel free to use and modify!
 
 ## 🙏 Credits
 
-Inspired by the visual aesthetic of Tron (1982) and retro-futuristic command centers.
+Inspired by the visual aesthetic of CLAWUNiT (1982) and retro-futuristic command centers.
 
 ---
 
