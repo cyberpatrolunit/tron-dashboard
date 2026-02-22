@@ -4,12 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CLAWUNiT // SYSTEM MONITOR</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -19,21 +15,9 @@
 
     :root {
       --neon-cyan: #00ffff;
-      --neon-blue: #0080ff;
       --blood-orange: #ff4500;
       --gold-accent: #ffd700;
       --dark-bg: #000810;
-      --grid-color: rgba(0, 255, 255, 0.15);
-      --glow-cyan: 0 0 10px rgba(0, 255, 255, 0.8),
-                   0 0 20px rgba(0, 255, 255, 0.5),
-                   0 0 30px rgba(0, 255, 255, 0.3);
-      --glow-blue: 0 0 10px rgba(0, 128, 255, 0.8),
-                   0 0 20px rgba(0, 128, 255, 0.5);
-      --glow-orange: 0 0 10px rgba(255, 69, 0, 0.8),
-                     0 0 20px rgba(255, 69, 0, 0.5),
-                     0 0 30px rgba(255, 69, 0, 0.3);
-      --glow-gold: 0 0 10px rgba(255, 215, 0, 0.8),
-                   0 0 20px rgba(255, 215, 0, 0.5);
     }
 
     body {
@@ -41,1167 +25,349 @@
       background: var(--dark-bg);
       color: var(--neon-cyan);
       min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
+      padding: 20px;
     }
 
-    /* Animated grid background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(var(--grid-color) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-      background-size: 50px 50px;
-      animation: gridMove 20s linear infinite;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    @keyframes gridMove {
-      0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-      100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-    }
-
-    /* Scan line effect */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(to bottom, 
-        rgba(0, 255, 255, 0.8), 
-        rgba(0, 255, 255, 0));
-      animation: scan 3s linear infinite;
-      z-index: 1000;
-      pointer-events: none;
-    }
-
-    @keyframes scan {
-      0% { top: 0; }
-      100% { top: 100%; }
-    }
-
-    .container {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Header */
     header {
       text-align: center;
-      margin-bottom: 40px;
-      position: relative;
-    }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--neon-cyan);
-      text-shadow: var(--glow-cyan);
-      margin-bottom: 8px;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    .subtitle {
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: rgba(0, 255, 255, 0.5);
-      opacity: 0.7;
-    }
-
-    .status-line {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 6px 20px;
-      border: 1px solid rgba(0, 255, 255, 0.3);
-      font-size: 9px;
-      letter-spacing: 1px;
-      opacity: 0.8;
-    }
-
-    /* Grid layout */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 30px;
       margin-bottom: 30px;
     }
 
-    /* Cards */
-    .card {
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    }
+
+    /* Tile Grid */
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Tile */
+    .tile {
+      aspect-ratio: 1;
       background: rgba(0, 8, 16, 0.9);
-      border: 1px solid var(--neon-cyan);
-      box-shadow: var(--glow-cyan), inset 0 0 20px rgba(0, 255, 255, 0.1);
-      padding: 25px;
-      position: relative;
-      overflow: hidden;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.15s;
+      padding: 12px;
     }
 
-    .card.collapsed {
-      padding: 12px 15px;
-      border-color: rgba(0, 255, 255, 0.5);
-      box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    .tile:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transform: scale(1.05);
     }
 
-    /* Active/Expanded state - Blood Orange */
-    .card:not(.collapsed) {
-      border-color: var(--blood-orange);
-      box-shadow: var(--glow-orange), inset 0 0 20px rgba(255, 69, 0, 0.1);
+    .tile-icon {
+      width: 28px;
+      height: 28px;
+      stroke: var(--neon-cyan);
+      margin-bottom: 8px;
     }
 
-    .card:not(.collapsed) h2 {
-      color: var(--blood-orange);
-      text-shadow: var(--glow-orange);
+    .tile-value {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--gold-accent);
+      text-shadow: 0 0 8px var(--gold-accent);
+      line-height: 1;
     }
 
-    .card:not(.collapsed) .progress-fill {
-      background: linear-gradient(90deg, 
-        var(--blood-orange), 
-        #ff6b35);
-      box-shadow: 0 0 10px var(--blood-orange);
+    .tile-label {
+      font-size: 7px;
+      color: rgba(0, 255, 255, 0.6);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .card:not(.collapsed) .stat-value {
-      color: var(--blood-orange);
-      text-shadow: var(--glow-orange);
-    }
-
-    .card.collapsed .card-content {
+    /* Modal */
+    .modal {
       display: none;
-    }
-
-    .card.collapsed .card-header {
-      margin-bottom: 0;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .card-indicator {
-      display: none;
-      align-items: center;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--neon-cyan);
-    }
-
-    .card.collapsed .card-indicator {
-      display: flex;
-    }
-
-    .micro-viz {
-      width: 60px;
-      height: 20px;
-      position: relative;
-    }
-
-    .micro-bar {
-      position: absolute;
-      bottom: 0;
-      width: 2px;
-      background: var(--neon-cyan);
-      box-shadow: 0 0 3px var(--neon-cyan);
-    }
-
-    .expand-icon {
-      font-size: 10px;
-      opacity: 0.6;
-      transition: transform 0.3s, color 0.3s;
-    }
-
-    .card.collapsed .expand-icon {
-      transform: rotate(180deg);
-    }
-
-    .card:not(.collapsed) .expand-icon {
-      color: var(--blood-orange);
-      text-shadow: var(--glow-orange);
-      opacity: 1;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, 
-        transparent, 
-        var(--neon-cyan), 
-        transparent);
-      animation: borderScan 2s linear infinite;
+      height: 100%;
+      background: rgba(0, 8, 16, 0.98);
+      z-index: 9999;
+      padding: 40px 20px;
+      overflow-y: auto;
     }
 
-    .card:not(.collapsed)::before {
-      background: linear-gradient(90deg, 
-        transparent, 
-        var(--blood-orange), 
-        transparent);
-    }
-
-    @keyframes borderScan {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .card h2 {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      color: var(--neon-cyan);
-      text-shadow: var(--glow-cyan);
+    .modal.active {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      animation: fadeIn 0.2s;
     }
 
-    .card h2 svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    .card:not(.collapsed) h2 svg {
-      fill: var(--blood-orange);
-      stroke: var(--blood-orange);
-    }
-
-    .stat {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(0, 255, 255, 0.1);
-      font-size: 13px;
-    }
-
-    .stat:last-child {
-      border-bottom: none;
-    }
-
-    .stat-label {
-      color: rgba(0, 255, 255, 0.5);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-size: 9px;
-      opacity: 0.7;
-    }
-
-    .stat-value {
-      color: var(--gold-accent);
-      font-weight: 900;
-      font-size: 24px;
-      text-shadow: var(--glow-gold);
-      letter-spacing: -1px;
-    }
-
-    .stat-unit {
-      color: rgba(0, 255, 255, 0.5);
-      font-size: 12px;
-      font-weight: 400;
-      margin-left: 4px;
-    }
-
-    .data-viz {
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      height: 30px;
-      margin-top: 5px;
-    }
-
-    .data-bar {
-      flex: 1;
-      background: linear-gradient(to top, var(--neon-cyan), var(--neon-blue));
-      min-width: 2px;
-      opacity: 0.6;
-      transition: all 0.3s;
-    }
-
-    .data-bar.highlight {
-      background: linear-gradient(to top, var(--gold-accent), #ffed4e);
-      opacity: 1;
-      box-shadow: 0 0 5px var(--gold-accent);
-    }
-
-    .card:not(.collapsed) .data-bar {
-      background: linear-gradient(to top, var(--blood-orange), #ff6b35);
-    }
-
-    /* Progress bars */
-    .progress-bar {
+    .modal-content {
+      background: rgba(0, 8, 16, 0.95);
+      border: 2px solid var(--blood-orange);
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.5), inset 0 0 40px rgba(255, 69, 0, 0.1);
+      padding: 40px;
+      max-width: 600px;
       width: 100%;
-      height: 6px;
-      background: rgba(0, 255, 255, 0.05);
-      margin-top: 8px;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(0, 255, 255, 0.2);
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, 
-        var(--neon-cyan), 
-        var(--neon-blue));
-      box-shadow: 0 0 10px var(--neon-cyan);
-      transition: width 0.5s ease;
       position: relative;
     }
 
-    .progress-fill::after {
-      content: '';
+    .modal-close {
       position: absolute;
-      top: 0;
-      right: 0;
-      width: 20px;
-      height: 100%;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.6));
-      animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-20px); }
-      100% { transform: translateX(20px); }
-    }
-
-    /* Charts */
-    .chart-container {
-      position: relative;
-      height: 200px;
-      margin-top: 15px;
-    }
-
-    canvas {
-      filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5));
-    }
-
-    /* Model buttons */
-    .model-buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 15px;
-    }
-
-    .model-btn {
-      padding: 12px;
-      border: 1px solid rgba(0, 255, 255, 0.3);
-      background: rgba(0, 8, 16, 0.8);
-      color: var(--neon-cyan);
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1px;
+      top: 20px;
+      right: 20px;
+      font-size: 32px;
+      color: var(--blood-orange);
       cursor: pointer;
-      transition: all 0.3s;
-      text-transform: uppercase;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.2s;
     }
 
-    .model-btn:hover {
-      border-color: var(--neon-cyan);
-      box-shadow: var(--glow-cyan);
-      background: rgba(0, 255, 255, 0.1);
+    .modal-close:hover {
+      opacity: 1;
     }
 
-    .model-btn.active {
-      border-color: var(--blood-orange);
-      background: var(--blood-orange);
-      color: #000;
-      box-shadow: var(--glow-orange);
-    }
-
-    /* Timestamp */
-    .timestamp {
-      text-align: center;
-      color: rgba(0, 255, 255, 0.5);
-      font-size: 10px;
-      margin-top: 30px;
+    .modal h2 {
+      color: var(--blood-orange);
+      text-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
+      font-size: 24px;
+      margin-bottom: 30px;
       letter-spacing: 2px;
     }
 
-    /* Large display cards */
-    .large-card {
-      grid-column: 1 / -1;
+    .modal-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 69, 0, 0.2);
     }
 
-    /* Heartbeat visualization */
-    .heartbeat-line {
-      stroke: var(--neon-cyan);
-      stroke-width: 2;
-      fill: none;
-      filter: drop-shadow(0 0 5px var(--neon-cyan));
+    .modal-label {
+      font-size: 11px;
+      color: rgba(255, 69, 0, 0.7);
+      text-transform: uppercase;
     }
 
-    /* Responsive - Mobile Compact */
-    @media (max-width: 768px) {
-      .container {
-        padding: 15px 10px;
-      }
+    .modal-value {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--gold-accent);
+      text-shadow: 0 0 10px var(--gold-accent);
+    }
 
-      header {
-        margin-bottom: 20px;
-      }
-
-      h1 {
-        font-size: 20px;
-        letter-spacing: 2px;
-        margin-bottom: 8px;
-      }
-
-      .subtitle {
-        font-size: 9px;
-        letter-spacing: 2px;
-      }
-
-      .status-line {
-        margin-top: 10px;
-        padding: 8px 20px;
-        font-size: 9px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        margin-bottom: 15px;
-      }
-
-      .card {
-        padding: 15px;
-      }
-
-      .card h2 {
-        font-size: 13px;
-        letter-spacing: 2px;
-        margin-bottom: 12px;
-      }
-
-      .stat {
-        padding: 8px 0;
-        font-size: 11px;
-      }
-
-      .stat-label {
-        font-size: 9px;
-      }
-
-      .stat-value {
-        font-size: 12px;
-      }
-
-      .chart-container {
-        height: 120px;
-      }
-
-      .model-buttons {
-        gap: 8px;
-      }
-
-      .model-btn {
-        padding: 10px;
-        font-size: 10px;
-      }
-
-      .timestamp {
-        font-size: 9px;
-        margin-top: 15px;
-      }
-
-      /* Optimize animations for mobile */
-      body::before {
-        background-size: 35px 35px;
-      }
+    .chart-container {
+      height: 200px;
+      margin: 20px 0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>CLAWUNiT SYSTEM MONITOR</h1>
-      <div class="subtitle">CPU-MAC-MINI // REAL-TIME NEURAL INTERFACE</div>
-      <div class="status-line">
-        <span class="status-dot"></span>
-        ONLINE // MONITORING ACTIVE
-      </div>
-    </header>
+  <header>
+    <h1>CLAWUNiT</h1>
+  </header>
 
-    <div class="grid">
-      <!-- System Resources -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="4" y="4" width="16" height="16" rx="2"/>
-              <rect x="9" y="9" width="6" height="6"/>
-              <line x1="4" y1="12" x2="2" y2="12"/>
-              <line x1="22" y1="12" x2="20" y2="12"/>
-              <line x1="12" y1="4" x2="12" y2="2"/>
-              <line x1="12" y1="22" x2="12" y2="20"/>
-            </svg>
-            SYSTEM CORE
-          </h2>
-          <div class="card-indicator">
-            <div class="micro-viz" id="cpu-micro"></div>
-            <span id="cpu-micro-value">--</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="stat">
-            <span class="stat-label">CPU</span>
-            <span class="stat-value" id="cpu-usage">--</span>
-          </div>
-          <div class="data-viz" id="cpu-viz"></div>
-          
-          <div class="stat">
-            <span class="stat-label">MEM</span>
-            <span class="stat-value" id="memory-usage-pct">--</span>
-          </div>
-          <div class="data-viz" id="mem-viz"></div>
-          
-          <div class="stat">
-            <span class="stat-label">DISK</span>
-            <span class="stat-value" id="disk-usage-pct">--</span>
-          </div>
-          <div class="data-viz" id="disk-viz"></div>
-        </div>
-      </div>
-
-      <!-- OpenClaw Neural -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="8"/>
-              <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
-              <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
-              <circle cx="12" cy="14" r="1.5" fill="currentColor"/>
-              <line x1="8" y1="10" x2="12" y2="14"/>
-              <line x1="16" y1="10" x2="12" y2="14"/>
-            </svg>
-            NEURAL INTERFACE
-          </h2>
-          <div class="card-indicator">
-            <span id="model-micro">--</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="stat">
-            <span class="stat-label">MODEL</span>
-            <span class="stat-value" id="current-model-short">--</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">TOKENS</span>
-            <span class="stat-value" id="tokens-pct">--<span class="stat-unit">%</span></span>
-          </div>
-          <div class="data-viz" id="token-viz"></div>
-          <div class="stat">
-            <span class="stat-label">AGE</span>
-            <span class="stat-value" id="session-age">--</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Heartbeat Monitor -->
-      <div class="card large-card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="2,12 6,12 8,6 10,18 12,12 14,8 16,16 18,12 22,12"/>
-            </svg>
-            HEARTBEAT MONITOR
-          </h2>
-          <div class="card-indicator">
-            <span>PULSE ACTIVE</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="chart-container">
-            <canvas id="heartbeatChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Network Latency -->
-      <div class="card large-card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12.5C5 12.5 9 8 12 8C15 8 19 12.5 19 12.5"/>
-              <path d="M8 15C8 15 10 13 12 13C14 13 16 15 16 15"/>
-              <circle cx="12" cy="17" r="1" fill="currentColor"/>
-            </svg>
-            NETWORK LATENCY
-          </h2>
-          <div class="card-indicator">
-            <span id="latency-micro">-- ms</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="chart-container">
-            <canvas id="latencyChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Model Switcher -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v6m0 6v6M23 12h-6m-6 0H1"/>
-              <line x1="18.4" y1="5.6" x2="14.8" y2="9.2"/>
-              <line x1="18.4" y1="18.4" x2="14.8" y2="14.8"/>
-              <line x1="5.6" y1="18.4" x2="9.2" y2="14.8"/>
-              <line x1="5.6" y1="5.6" x2="9.2" y2="9.2"/>
-            </svg>
-            MODEL SELECT
-          </h2>
-          <div class="card-indicator">
-            <span>SWITCH</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="model-buttons">
-            <button class="model-btn" onclick="event.stopPropagation(); switchModel('haiku', this)">HAIKU</button>
-            <button class="model-btn active" onclick="event.stopPropagation(); switchModel('sonnet', this)">SONNET</button>
-            <button class="model-btn" onclick="event.stopPropagation(); switchModel('opus', this)">OPUS</button>
-            <button class="model-btn" onclick="event.stopPropagation(); switchModel('qwen', this)">QWEN</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- System Info -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7"/>
-              <rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/>
-            </svg>
-            SYSTEM INFO
-          </h2>
-          <div class="card-indicator">
-            <span id="proc-micro">-- PROC</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="stat">
-            <span class="stat-label">PROC</span>
-            <span class="stat-value" id="processes">--</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">POWER</span>
-            <span class="stat-value" id="power-val">--<span class="stat-unit">W</span></span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">UPTIME</span>
-            <span class="stat-value" id="uptime">--</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Network I/O -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/>
-            </svg>
-            NETWORK I/O
-          </h2>
-          <div class="card-indicator">
-            <span id="net-micro">-- KB/s</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="stat">
-            <span class="stat-label">↓ RX</span>
-            <span class="stat-value" id="net-rx-val">--<span class="stat-unit">KB/s</span></span>
-          </div>
-          <div class="data-viz" id="rx-viz"></div>
-          <div class="stat">
-            <span class="stat-label">↑ TX</span>
-            <span class="stat-value" id="net-tx-val">--<span class="stat-unit">KB/s</span></span>
-          </div>
-          <div class="data-viz" id="tx-viz"></div>
-        </div>
-      </div>
-
-      <!-- Disk I/O -->
-      <div class="card collapsed" onclick="toggleCard(this)">
-        <div class="card-header">
-          <h2>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 6h18v12H3z"/>
-              <line x1="7" y1="10" x2="17" y2="10"/>
-              <line x1="7" y1="14" x2="17" y2="14"/>
-              <circle cx="12" cy="12" r="2" fill="currentColor"/>
-            </svg>
-            DISK I/O
-          </h2>
-          <div class="card-indicator">
-            <span id="disk-micro">-- KB/s</span>
-            <span class="expand-icon">▼</span>
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="stat">
-            <span class="stat-label">READ</span>
-            <span class="stat-value" id="disk-read-val">--<span class="stat-unit">KB/s</span></span>
-          </div>
-          <div class="data-viz" id="read-viz"></div>
-          <div class="stat">
-            <span class="stat-label">WRITE</span>
-            <span class="stat-value" id="disk-write-val">--<span class="stat-unit">KB/s</span></span>
-          </div>
-          <div class="data-viz" id="write-viz"></div>
-        </div>
-      </div>
+  <div class="tile-grid">
+    <!-- CPU Tile -->
+    <div class="tile" onclick="openModal('cpu')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <rect x="4" y="4" width="16" height="16" rx="2"/>
+        <rect x="9" y="9" width="6" height="6"/>
+        <line x1="4" y1="12" x2="2" y2="12"/>
+        <line x1="22" y1="12" x2="20" y2="12"/>
+      </svg>
+      <div class="tile-value" id="cpu-tile">--</div>
+      <div class="tile-label">CPU</div>
     </div>
 
-    <div class="timestamp" id="last-update">LAST SYNC: --</div>
+    <!-- Memory Tile -->
+    <div class="tile" onclick="openModal('mem')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <rect x="4" y="4" width="16" height="16"/>
+        <line x1="4" y1="9" x2="20" y2="9"/>
+        <line x1="4" y1="14" x2="20" y2="14"/>
+      </svg>
+      <div class="tile-value" id="mem-tile">--</div>
+      <div class="tile-label">MEM</div>
+    </div>
+
+    <!-- Disk Tile -->
+    <div class="tile" onclick="openModal('disk')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <circle cx="12" cy="12" r="8"/>
+        <circle cx="12" cy="12" r="4"/>
+      </svg>
+      <div class="tile-value" id="disk-tile">--</div>
+      <div class="tile-label">DISK</div>
+    </div>
+
+    <!-- Network Tile -->
+    <div class="tile" onclick="openModal('net')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/>
+      </svg>
+      <div class="tile-value" id="net-tile">--</div>
+      <div class="tile-label">NET</div>
+    </div>
+
+    <!-- I/O Tile -->
+    <div class="tile" onclick="openModal('io')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <polyline points="16 3 21 8 16 13"/>
+        <line x1="10" y1="8" x2="21" y2="8"/>
+        <polyline points="8 11 3 16 8 21"/>
+        <line x1="14" y1="16" x2="3" y2="16"/>
+      </svg>
+      <div class="tile-value" id="io-tile">--</div>
+      <div class="tile-label">I/O</div>
+    </div>
+
+    <!-- Neural Tile -->
+    <div class="tile" onclick="openModal('neural')">
+      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <circle cx="12" cy="12" r="8"/>
+        <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+        <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
+      </svg>
+      <div class="tile-value" id="neural-tile">--</div>
+      <div class="tile-label">NEURAL</div>
+    </div>
   </div>
 
+  <!-- CPU Modal -->
+  <div id="cpu-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal()">×</div>
+      <h2>CPU CORE</h2>
+      <div class="modal-stat">
+        <span class="modal-label">CPU</span>
+        <span class="modal-value" id="cpu-full">--</span>
+      </div>
+      <div class="chart-container"><canvas id="cpu-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Memory Modal -->
+  <div id="mem-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal()">×</div>
+      <h2>MEMORY</h2>
+      <div class="modal-stat">
+        <span class="modal-label">USAGE</span>
+        <span class="modal-value" id="mem-full">--</span>
+      </div>
+      <div class="chart-container"><canvas id="mem-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Other modals similarly... -->
+
   <script>
-    let heartbeatChart, latencyChart;
-    const heartbeatData = [];
-    const latencyData = [];
-    const maxDataPoints = 30;
-    const cpuHistory = [];
+    let activeModal = null;
 
-    // Toggle card expansion
-    function toggleCard(card) {
-      card.classList.toggle('collapsed');
-    }
-
-    // Update micro visualizations
-    function updateMicroViz(containerId, values) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      
-      container.innerHTML = '';
-      const maxVal = Math.max(...values, 1);
-      values.slice(-15).forEach((val, i) => {
-        const bar = document.createElement('div');
-        bar.className = 'micro-bar';
-        bar.style.left = `${i * 4}px`;
-        bar.style.height = `${(val / maxVal) * 20}px`;
-        container.appendChild(bar);
-      });
-    }
-
-    // Update data viz bars
-    function updateDataViz(containerId, values, maxCount = 20) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      
-      container.innerHTML = '';
-      const maxVal = Math.max(...values, 1);
-      const recent = values.slice(-maxCount);
-      
-      recent.forEach((val, i) => {
-        const bar = document.createElement('div');
-        bar.className = i === recent.length - 1 ? 'data-bar highlight' : 'data-bar';
-        bar.style.height = `${(val / maxVal) * 100}%`;
-        container.appendChild(bar);
-      });
-    }
-
-    // History arrays for visualizations
-    const cpuVizHistory = [];
-    const memVizHistory = [];
-    const diskVizHistory = [];
-    const rxVizHistory = [];
-    const txVizHistory = [];
-    const readVizHistory = [];
-    const writeVizHistory = [];
-    const tokenVizHistory = [];
-
-    // Initialize charts
-    function initCharts() {
-      // Heartbeat chart
-      const heartbeatCtx = document.getElementById('heartbeatChart').getContext('2d');
-      heartbeatChart = new Chart(heartbeatCtx, {
-        type: 'line',
-        data: {
-          labels: Array(maxDataPoints).fill(''),
-          datasets: [{
-            data: Array(maxDataPoints).fill(0),
-            borderColor: '#00ffff',
-            backgroundColor: 'rgba(0, 255, 255, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 100,
-              grid: {
-                color: 'rgba(0, 255, 255, 0.2)'
-              },
-              ticks: {
-                color: '#00ffff'
-              }
-            },
-            x: {
-              grid: {
-                color: 'rgba(0, 255, 255, 0.1)'
-              },
-              ticks: {
-                display: false
-              }
-            }
-          },
-          animation: {
-            duration: 0
-          }
-        }
-      });
-
-      // Latency chart
-      const latencyCtx = document.getElementById('latencyChart').getContext('2d');
-      latencyChart = new Chart(latencyCtx, {
-        type: 'line',
-        data: {
-          labels: Array(maxDataPoints).fill(''),
-          datasets: [{
-            data: Array(maxDataPoints).fill(0),
-            borderColor: '#0080ff',
-            backgroundColor: 'rgba(0, 128, 255, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: 'rgba(0, 128, 255, 0.2)'
-              },
-              ticks: {
-                color: '#0080ff',
-                callback: function(value) {
-                  return value + 'ms';
-                }
-              }
-            },
-            x: {
-              grid: {
-                color: 'rgba(0, 128, 255, 0.1)'
-              },
-              ticks: {
-                display: false
-              }
-            }
-          },
-          animation: {
-            duration: 0
-          }
-        }
-      });
-    }
-
-    // Update heartbeat data
-    function updateHeartbeat() {
-      // Simulate heartbeat (will be replaced with actual heartbeat checks)
-      const beat = 50 + Math.random() * 30 + Math.sin(Date.now() / 200) * 20;
-      heartbeatData.push(beat);
-      if (heartbeatData.length > maxDataPoints) {
-        heartbeatData.shift();
-      }
-      heartbeatChart.data.datasets[0].data = heartbeatData;
-      heartbeatChart.update();
-    }
-
-    // Update latency data
-    async function updateLatency() {
-      const start = Date.now();
-      try {
-        await fetch('/api/stats');
-        const latency = Date.now() - start;
-        latencyData.push(latency);
-        if (latencyData.length > maxDataPoints) {
-          latencyData.shift();
-        }
-        latencyChart.data.datasets[0].data = latencyData;
-        latencyChart.update();
-        
-        // Update micro indicator
-        document.getElementById('latency-micro').textContent = `${latency} ms`;
-      } catch (error) {
-        console.error('Latency check failed:', error);
+    function openModal(id) {
+      closeModal();
+      const modal = document.getElementById(id + '-modal');
+      if (modal) {
+        modal.classList.add('active');
+        activeModal = modal;
       }
     }
 
-    // Fetch stats
+    function closeModal() {
+      if (activeModal) {
+        activeModal.classList.remove('active');
+        activeModal = null;
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // 60Hz Update Loop
+    let lastUpdateTime = 0;
+    const UPDATE_INTERVAL = 1000 / 60; // 60Hz
+
     async function fetchStats() {
       try {
-        const response = await fetch('/api/stats');
-        const data = await response.json();
-        
-        const cpuTotal = data.cpu.user + data.cpu.system;
-        document.getElementById('cpu-usage').textContent = cpuTotal.toFixed(0);
-        
-        // Update visualizations
-        cpuVizHistory.push(cpuTotal);
-        if (cpuVizHistory.length > 20) cpuVizHistory.shift();
-        updateDataViz('cpu-viz', cpuVizHistory);
-        
-        cpuHistory.push(cpuTotal);
-        if (cpuHistory.length > 15) cpuHistory.shift();
-        updateMicroViz('cpu-micro', cpuHistory);
-        document.getElementById('cpu-micro-value').textContent = `${cpuTotal.toFixed(0)}%`;
-        
-        const memFree = parseFloat(data.memory.free || '0');
-        const memActive = parseFloat(data.memory.active || '0');
-        const memTotal = memFree + memActive;
-        const memPercent = memTotal > 0 ? ((memActive / memTotal) * 100) : 0;
-        document.getElementById('memory-usage-pct').textContent = memPercent.toFixed(0);
-        
-        memVizHistory.push(memPercent);
-        if (memVizHistory.length > 20) memVizHistory.shift();
-        updateDataViz('mem-viz', memVizHistory);
-        
-        const diskPercent = parseFloat(data.disk.percent);
-        document.getElementById('disk-usage-pct').textContent = diskPercent.toFixed(0);
-        
-        diskVizHistory.push(diskPercent);
-        if (diskVizHistory.length > 20) diskVizHistory.shift();
-        updateDataViz('disk-viz', diskVizHistory);
-        
-        const uptimeMatch = data.uptime.match(/up\s+(.+?),/);
-        const uptimeShort = uptimeMatch ? uptimeMatch[1].replace('days', 'd').replace('hrs', 'h').replace('mins', 'm') : '--';
-        document.getElementById('uptime').textContent = uptimeShort;
-        document.getElementById('processes').textContent = data.processes;
-        document.getElementById('proc-micro').textContent = `${data.processes} PROC`;
-        
-        document.getElementById('last-update').textContent = `LAST SYNC: ${new Date().toLocaleTimeString()}`;
-      } catch (error) {
-        console.error('Error fetching stats:', error);
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        return data;
+      } catch (e) {
+        return null;
       }
     }
 
-    async function fetchOpenClaw() {
-      try {
-        const response = await fetch('/api/openclaw');
-        const data = await response.json();
-        
-        const modelName = data.model.split('/')[1] || data.model;
-        const modelShort = modelName.split('-')[0].toUpperCase();
-        document.getElementById('current-model-short').textContent = modelShort;
-        document.getElementById('tokens-pct').textContent = data.tokensUsed || 0;
-        
-        tokenVizHistory.push(data.tokensUsed || 0);
-        if (tokenVizHistory.length > 20) tokenVizHistory.shift();
-        updateDataViz('token-viz', tokenVizHistory);
-        
-        document.getElementById('session-age').textContent = data.age;
-        
-        // Update micro indicator
-        document.getElementById('model-micro').textContent = `${modelShort} ${data.tokensUsed}%`;
-      } catch (error) {
-        console.error('Error fetching OpenClaw data:', error);
-      }
-    }
-
-    async function switchModel(model, btnElement) {
-      try {
-        const response = await fetch('/api/model/switch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model })
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          document.querySelectorAll('.model-btn').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          btnElement.classList.add('active');
-          
-          const originalText = btnElement.innerHTML;
-          btnElement.innerHTML = '✓ ACTIVE';
-          setTimeout(() => {
-            btnElement.innerHTML = originalText;
-          }, 2000);
-          
-          fetchOpenClaw();
-        }
-      } catch (error) {
-        console.error('Error switching model:', error);
-      }
-    }
-
-    // Fetch real-time high-frequency stats
     async function fetchRealtime() {
       try {
-        const response = await fetch('/api/realtime');
-        const data = await response.json();
-        
-        // Update network I/O
-        const rxRate = data.network.rxRate;
-        const txRate = data.network.txRate;
-        document.getElementById('net-rx-val').textContent = rxRate.toFixed(1);
-        document.getElementById('net-tx-val').textContent = txRate.toFixed(1);
-        
-        rxVizHistory.push(rxRate);
-        if (rxVizHistory.length > 20) rxVizHistory.shift();
-        updateDataViz('rx-viz', rxVizHistory);
-        
-        txVizHistory.push(txRate);
-        if (txVizHistory.length > 20) txVizHistory.shift();
-        updateDataViz('tx-viz', txVizHistory);
-        
-        const netTotal = rxRate + txRate;
-        document.getElementById('net-micro').textContent = `${netTotal.toFixed(1)} KB/s`;
-        
-        // Update disk I/O
-        const readRate = parseFloat(data.disk.readKBps);
-        const writeRate = parseFloat(data.disk.writeKBps);
-        document.getElementById('disk-read-val').textContent = readRate.toFixed(1);
-        document.getElementById('disk-write-val').textContent = writeRate.toFixed(1);
-        
-        readVizHistory.push(readRate);
-        if (readVizHistory.length > 20) readVizHistory.shift();
-        updateDataViz('read-viz', readVizHistory);
-        
-        writeVizHistory.push(writeRate);
-        if (writeVizHistory.length > 20) writeVizHistory.shift();
-        updateDataViz('write-viz', writeVizHistory);
-        
-        const diskTotal = readRate + writeRate;
-        document.getElementById('disk-micro').textContent = `${diskTotal.toFixed(1)} KB/s`;
-        
-        // Update power
-        document.getElementById('power-val').textContent = data.power.watts;
-      } catch (error) {
-        console.error('Error fetching realtime stats:', error);
+        const res = await fetch('/api/realtime');
+        const data = await res.json();
+        return data;
+      } catch (e) {
+        return null;
       }
     }
 
-    // Initialize
-    initCharts();
-    fetchStats();
-    fetchOpenClaw();
-    fetchRealtime();
+    function update60Hz(timestamp) {
+      if (timestamp - lastUpdateTime >= UPDATE_INTERVAL) {
+        updateTiles();
+        lastUpdateTime = timestamp;
+      }
+      requestAnimationFrame(update60Hz);
+    }
 
-    // Update intervals - high frequency for realtime data
-    setInterval(fetchStats, 3000);        // System stats every 3 seconds
-    setInterval(fetchOpenClaw, 10000);    // OpenClaw stats every 10 seconds
-    setInterval(fetchRealtime, 1000);     // Realtime stats every 1 second
-    setInterval(updateHeartbeat, 100);    // Heartbeat visual every 100ms
-    setInterval(updateLatency, 2000);     // Network latency every 2 seconds
+    async function updateTiles() {
+      const stats = await fetchStats();
+      const rt = await fetchRealtime();
+      
+      if (stats) {
+        const cpuTotal = stats.cpu.user + stats.cpu.system;
+        document.getElementById('cpu-tile').textContent = cpuTotal.toFixed(0);
+        document.getElementById('cpu-full').textContent = cpuTotal.toFixed(1) + '%';
+        
+        const memFree = parseFloat(stats.memory.free || '0');
+        const memActive = parseFloat(stats.memory.active || '0');
+        const memTotal = memFree + memActive;
+        const memPercent = memTotal > 0 ? ((memActive / memTotal) * 100) : 0;
+        document.getElementById('mem-tile').textContent = memPercent.toFixed(0);
+        document.getElementById('mem-full').textContent = memPercent.toFixed(1) + '%';
+        
+        const diskPercent = parseFloat(stats.disk.percent);
+        document.getElementById('disk-tile').textContent = diskPercent.toFixed(0);
+      }
 
-    // MIDI Player (keeping from original)
-    class MIDIPlayer {
-      constructor() {
-        this.tracks = ['/midi/shake_it_off.mid', '/midi/love_story.mid', '/midi/blank_space.mid'];
-        this.synth = null;
-        this.currentPart = null;
-        this.unlocked = false;
-        this.init();
-      }
-      async init() {
-        const needsUnlock = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (!needsUnlock) {
-          setTimeout(async () => {
-            await Tone.start();
-            this.startAudio();
-          }, 2000);
-        }
-      }
-      startAudio() {
-        if (this.unlocked) return;
-        this.unlocked = true;
-        this.synth = new Tone.PolySynth(Tone.Synth, {
-          volume: -6,
-          oscillator: { type: 'triangle' },
-          envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
-        }).toDestination();
-        this.playRandom();
-      }
-      async playRandom() {
-        const randomTrack = this.tracks[Math.floor(Math.random() * this.tracks.length)];
-        try {
-          const midi = await Midi.fromUrl(randomTrack);
-          if (this.currentPart) {
-            this.currentPart.dispose();
-            Tone.Transport.stop();
-            Tone.Transport.cancel();
-          }
-          const track = midi.tracks.find(t => t.notes.length > 0);
-          if (!track) return setTimeout(() => this.playRandom(), 5000);
-          this.currentPart = new Tone.Part((time, note) => {
-            this.synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
-          }, track.notes.map(note => ({
-            time: note.time, name: note.name, duration: note.duration, velocity: note.velocity
-          })));
-          this.currentPart.loop = false;
-          this.currentPart.start(0);
-          Tone.Transport.schedule(() => this.playRandom(), `+${track.duration + 2}`);
-          if (Tone.Transport.state !== 'started') Tone.Transport.start();
-        } catch (error) {
-          setTimeout(() => this.playRandom(), 10000);
-        }
+      if (rt) {
+        const netTotal = (rt.network.rxRate + rt.network.txRate).toFixed(0);
+        document.getElementById('net-tile').textContent = netTotal;
+        
+        const ioTotal = (parseFloat(rt.disk.readKBps) + parseFloat(rt.disk.writeKBps)).toFixed(0);
+        document.getElementById('io-tile').textContent = ioTotal;
       }
     }
-    const midiPlayer = new MIDIPlayer();
+
+    // Start
+    updateTiles();
+    requestAnimationFrame(update60Hz);
+    setInterval(updateTiles, 1000);
   </script>
 </body>
 </html>
