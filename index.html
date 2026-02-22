@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CLAWUNiT // SYSTEM MONITOR</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <title>CLAWUNiT // NEURAL INTERFACE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,84 +14,253 @@
 
     :root {
       --neon-cyan: #00ffff;
-      --blood-orange: #ff4500;
-      --gold-accent: #ffd700;
-      --dark-bg: #000810;
+      --neon-red: #ff0040;
+      --neon-orange: #ff4500;
+      --gold: #ffd700;
+      --white: #ffffff;
     }
 
     body {
-      font-family: 'Orbitron', monospace;
-      background: var(--dark-bg);
+      font-family: 'Rajdhani', sans-serif;
+      background: #000;
       color: var(--neon-cyan);
       min-height: 100vh;
-      padding: 20px;
+      overflow: hidden;
+      position: relative;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
+    /* Animated Matrix Background */
+    #matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      z-index: 0;
+      pointer-events: none;
     }
 
-    h1 {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    /* Scan Lines */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.03) 2px,
+        rgba(0, 255, 255, 0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+      animation: scan 8s linear infinite;
     }
 
-    /* Tile Grid */
-    .tile-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 12px;
-      max-width: 1200px;
+    @keyframes scan {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100px); }
+    }
+
+    /* Vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .container {
+      position: relative;
+      z-index: 3;
+      padding: 40px 20px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
-    /* Tile */
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      color: var(--white);
+      text-shadow: 
+        0 0 10px var(--neon-cyan),
+        0 0 20px var(--neon-cyan),
+        0 0 40px var(--neon-cyan),
+        0 0 80px var(--neon-cyan);
+      animation: flicker 3s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; }
+      51% { opacity: 1; }
+    }
+
+    .subtitle {
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--neon-red);
+      text-transform: uppercase;
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+
+    /* Hexagonal Tile Grid */
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 20px;
+      perspective: 1000px;
+    }
+
+    /* Holographic Tile */
     .tile {
       aspect-ratio: 1;
-      background: rgba(0, 8, 16, 0.9);
-      border: 1px solid rgba(0, 255, 255, 0.3);
+      background: linear-gradient(135deg, 
+        rgba(0, 255, 255, 0.05) 0%,
+        rgba(0, 0, 0, 0.8) 50%,
+        rgba(0, 255, 255, 0.05) 100%);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      clip-path: polygon(
+        30% 0%, 70% 0%,
+        100% 30%, 100% 70%,
+        70% 100%, 30% 100%,
+        0% 70%, 0% 30%
+      );
+    }
+
+    /* Holographic Glow */
+    .tile::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        transparent, 
+        rgba(0, 255, 255, 0.3), 
+        transparent 30%
+      );
+      animation: rotate 4s linear infinite;
+    }
+
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+
+    .tile::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: rgba(0, 0, 0, 0.9);
+      clip-path: polygon(
+        30% 0%, 70% 0%,
+        100% 30%, 100% 70%,
+        70% 100%, 30% 100%,
+        0% 70%, 0% 30%
+      );
+    }
+
+    .tile:hover {
+      border-color: var(--neon-red);
+      box-shadow: 
+        0 0 20px var(--neon-red),
+        0 0 40px var(--neon-red),
+        inset 0 0 20px rgba(255, 0, 64, 0.1);
+      transform: translateY(-10px) rotateX(5deg);
+    }
+
+    .tile-content {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s;
-      padding: 12px;
-    }
-
-    .tile:hover {
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-      transform: scale(1.05);
+      height: 100%;
+      padding: 20px;
     }
 
     .tile-icon {
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
       stroke: var(--neon-cyan);
-      margin-bottom: 8px;
+      filter: drop-shadow(0 0 8px var(--neon-cyan));
+      margin-bottom: 12px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
     }
 
     .tile-value {
-      font-size: 16px;
+      font-size: 24px;
       font-weight: 900;
-      color: var(--gold-accent);
-      text-shadow: 0 0 8px var(--gold-accent);
+      color: var(--gold);
+      text-shadow: 
+        0 0 10px var(--gold),
+        0 0 20px var(--gold);
       line-height: 1;
+      font-family: 'Orbitron', monospace;
     }
 
     .tile-label {
-      font-size: 7px;
-      color: rgba(0, 255, 255, 0.6);
-      margin-top: 6px;
+      font-size: 8px;
+      color: var(--neon-cyan);
+      margin-top: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 2px;
+      opacity: 0.7;
     }
 
-    /* Modal */
+    /* Data Stream Effect */
+    .data-stream {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 0;
+      background: linear-gradient(to bottom, 
+        transparent, 
+        var(--neon-cyan), 
+        transparent);
+      animation: stream 2s ease-in-out infinite;
+    }
+
+    @keyframes stream {
+      0% { height: 0; top: 0; }
+      50% { height: 100%; top: 0; }
+      100% { height: 0; top: 100%; }
+    }
+
+    /* Modal - Blade Runner Style */
     .modal {
       display: none;
       position: fixed;
@@ -100,155 +268,278 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 8, 16, 0.98);
+      background: rgba(0, 0, 0, 0.95);
       z-index: 9999;
-      padding: 40px 20px;
+      padding: 60px 40px;
       overflow-y: auto;
+      backdrop-filter: blur(20px);
     }
 
     .modal.active {
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: fadeIn 0.2s;
+      animation: modalFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes modalFade {
+      from { 
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to { 
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .modal-content {
-      background: rgba(0, 8, 16, 0.95);
-      border: 2px solid var(--blood-orange);
-      box-shadow: 0 0 30px rgba(255, 69, 0, 0.5), inset 0 0 40px rgba(255, 69, 0, 0.1);
-      padding: 40px;
-      max-width: 600px;
+      background: linear-gradient(135deg,
+        rgba(0, 0, 0, 0.95) 0%,
+        rgba(255, 0, 64, 0.05) 50%,
+        rgba(0, 0, 0, 0.95) 100%);
+      border: 2px solid var(--neon-red);
+      box-shadow: 
+        0 0 40px rgba(255, 0, 64, 0.5),
+        0 0 80px rgba(255, 0, 64, 0.3),
+        inset 0 0 60px rgba(255, 0, 64, 0.1);
+      padding: 50px;
+      max-width: 700px;
       width: 100%;
       position: relative;
+      backdrop-filter: blur(20px);
+    }
+
+    /* Corner Brackets */
+    .modal-content::before,
+    .modal-content::after {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--neon-red);
+    }
+
+    .modal-content::before {
+      top: 20px;
+      left: 20px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .modal-content::after {
+      bottom: 20px;
+      right: 20px;
+      border-left: none;
+      border-top: none;
     }
 
     .modal-close {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 32px;
-      color: var(--blood-orange);
+      top: 30px;
+      right: 30px;
+      width: 40px;
+      height: 40px;
       cursor: pointer;
-      line-height: 1;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+      color: var(--neon-red);
+      font-size: 32px;
+      line-height: 40px;
+      text-align: center;
+      opacity: 0.8;
+      transition: all 0.3s;
+      font-weight: 300;
     }
 
     .modal-close:hover {
       opacity: 1;
+      transform: rotate(90deg);
+      text-shadow: 0 0 20px var(--neon-red);
     }
 
     .modal h2 {
-      color: var(--blood-orange);
-      text-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
-      font-size: 24px;
-      margin-bottom: 30px;
-      letter-spacing: 2px;
+      font-family: 'Orbitron', monospace;
+      color: var(--white);
+      text-shadow: 0 0 20px var(--neon-red);
+      font-size: 28px;
+      margin-bottom: 40px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
     }
 
     .modal-stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 0, 64, 0.2);
+      position: relative;
+    }
+
+    .modal-stat::before {
+      content: '▸';
+      position: absolute;
+      left: -20px;
+      color: var(--neon-red);
+      opacity: 0.5;
     }
 
     .modal-label {
-      font-size: 11px;
-      color: rgba(255, 69, 0, 0.7);
+      font-size: 12px;
+      color: rgba(255, 0, 64, 0.8);
       text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 500;
     }
 
     .modal-value {
-      font-size: 20px;
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
       font-weight: 900;
-      color: var(--gold-accent);
-      text-shadow: 0 0 10px var(--gold-accent);
+      color: var(--gold);
+      text-shadow: 
+        0 0 10px var(--gold),
+        0 0 20px var(--gold),
+        0 0 40px var(--gold);
     }
 
     .chart-container {
-      height: 200px;
-      margin: 20px 0;
+      height: 220px;
+      margin: 30px 0;
+      position: relative;
+      border: 1px solid rgba(255, 0, 64, 0.3);
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Glitch Effect */
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+
+    .glitch {
+      animation: glitch 0.3s infinite;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .tile-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+      }
+      
+      h1 {
+        font-size: 20px;
+        letter-spacing: 4px;
+      }
+      
+      .modal-content {
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>CLAWUNiT</h1>
-  </header>
+  <canvas id="matrix-bg"></canvas>
 
-  <div class="tile-grid">
-    <!-- CPU Tile -->
-    <div class="tile" onclick="openModal('cpu')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <rect x="4" y="4" width="16" height="16" rx="2"/>
-        <rect x="9" y="9" width="6" height="6"/>
-        <line x1="4" y1="12" x2="2" y2="12"/>
-        <line x1="22" y1="12" x2="20" y2="12"/>
-      </svg>
-      <div class="tile-value" id="cpu-tile">--</div>
-      <div class="tile-label">CPU</div>
-    </div>
+  <div class="container">
+    <header>
+      <h1>CLAWUNiT</h1>
+      <div class="subtitle">NEURAL INTERFACE SYSTEM</div>
+    </header>
 
-    <!-- Memory Tile -->
-    <div class="tile" onclick="openModal('mem')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <rect x="4" y="4" width="16" height="16"/>
-        <line x1="4" y1="9" x2="20" y2="9"/>
-        <line x1="4" y1="14" x2="20" y2="14"/>
-      </svg>
-      <div class="tile-value" id="mem-tile">--</div>
-      <div class="tile-label">MEM</div>
-    </div>
+    <div class="tile-grid">
+      <!-- CPU Tile -->
+      <div class="tile" onclick="openModal('cpu')">
+        <div class="data-stream"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <rect x="9" y="9" width="6" height="6"/>
+            <line x1="4" y1="12" x2="2" y2="12"/>
+            <line x1="22" y1="12" x2="20" y2="12"/>
+            <line x1="12" y1="4" x2="12" y2="2"/>
+            <line x1="12" y1="22" x2="12" y2="20"/>
+          </svg>
+          <div class="tile-value" id="cpu-tile">--</div>
+          <div class="tile-label">CPU</div>
+        </div>
+      </div>
 
-    <!-- Disk Tile -->
-    <div class="tile" onclick="openModal('disk')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <circle cx="12" cy="12" r="8"/>
-        <circle cx="12" cy="12" r="4"/>
-      </svg>
-      <div class="tile-value" id="disk-tile">--</div>
-      <div class="tile-label">DISK</div>
-    </div>
+      <!-- Memory Tile -->
+      <div class="tile" onclick="openModal('mem')">
+        <div class="data-stream" style="animation-delay: 0.5s"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16"/>
+            <line x1="4" y1="9" x2="20" y2="9"/>
+            <line x1="4" y1="14" x2="20" y2="14"/>
+          </svg>
+          <div class="tile-value" id="mem-tile">--</div>
+          <div class="tile-label">MEMORY</div>
+        </div>
+      </div>
 
-    <!-- Network Tile -->
-    <div class="tile" onclick="openModal('net')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/>
-      </svg>
-      <div class="tile-value" id="net-tile">--</div>
-      <div class="tile-label">NET</div>
-    </div>
+      <!-- Disk Tile -->
+      <div class="tile" onclick="openModal('disk')">
+        <div class="data-stream" style="animation-delay: 1s"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="8"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <div class="tile-value" id="disk-tile">--</div>
+          <div class="tile-label">STORAGE</div>
+        </div>
+      </div>
 
-    <!-- I/O Tile -->
-    <div class="tile" onclick="openModal('io')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <polyline points="16 3 21 8 16 13"/>
-        <line x1="10" y1="8" x2="21" y2="8"/>
-        <polyline points="8 11 3 16 8 21"/>
-        <line x1="14" y1="16" x2="3" y2="16"/>
-      </svg>
-      <div class="tile-value" id="io-tile">--</div>
-      <div class="tile-label">I/O</div>
-    </div>
+      <!-- Network Tile -->
+      <div class="tile" onclick="openModal('net')">
+        <div class="data-stream" style="animation-delay: 1.5s"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/>
+          </svg>
+          <div class="tile-value" id="net-tile">--</div>
+          <div class="tile-label">NETWORK</div>
+        </div>
+      </div>
 
-    <!-- Neural Tile -->
-    <div class="tile" onclick="openModal('neural')">
-      <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
-        <circle cx="12" cy="12" r="8"/>
-        <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
-        <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
-      </svg>
-      <div class="tile-value" id="neural-tile">--</div>
-      <div class="tile-label">NEURAL</div>
+      <!-- I/O Tile -->
+      <div class="tile" onclick="openModal('io')">
+        <div class="data-stream" style="animation-delay: 2s"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <polyline points="16 3 21 8 16 13"/>
+            <line x1="10" y1="8" x2="21" y2="8"/>
+            <polyline points="8 11 3 16 8 21"/>
+            <line x1="14" y1="16" x2="3" y2="16"/>
+          </svg>
+          <div class="tile-value" id="io-tile">--</div>
+          <div class="tile-label">I/O</div>
+        </div>
+      </div>
+
+      <!-- Neural Tile -->
+      <div class="tile" onclick="openModal('neural')">
+        <div class="data-stream" style="animation-delay: 2.5s"></div>
+        <div class="tile-content">
+          <svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="8"/>
+            <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
+            <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
+            <circle cx="12" cy="14" r="1.5" fill="currentColor"/>
+            <line x1="8" y1="10" x2="12" y2="14"/>
+            <line x1="16" y1="10" x2="12" y2="14"/>
+          </svg>
+          <div class="tile-value" id="neural-tile">--</div>
+          <div class="tile-label">NEURAL</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -258,10 +549,12 @@
       <div class="modal-close" onclick="closeModal()">×</div>
       <h2>CPU CORE</h2>
       <div class="modal-stat">
-        <span class="modal-label">CPU</span>
+        <span class="modal-label">USAGE</span>
         <span class="modal-value" id="cpu-full">--</span>
       </div>
-      <div class="chart-container"><canvas id="cpu-chart"></canvas></div>
+      <div class="chart-container">
+        <canvas id="cpu-chart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -274,13 +567,44 @@
         <span class="modal-label">USAGE</span>
         <span class="modal-value" id="mem-full">--</span>
       </div>
-      <div class="chart-container"><canvas id="mem-chart"></canvas></div>
+      <div class="chart-container">
+        <canvas id="mem-chart"></canvas>
+      </div>
     </div>
   </div>
 
-  <!-- Other modals similarly... -->
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
+    // Matrix Background
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00ffff';
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    // Modal System
     let activeModal = null;
 
     function openModal(id) {
@@ -304,14 +628,10 @@
     });
 
     // 60Hz Update Loop
-    let lastUpdateTime = 0;
-    const UPDATE_INTERVAL = 1000 / 60; // 60Hz
-
     async function fetchStats() {
       try {
         const res = await fetch('/api/stats');
-        const data = await res.json();
-        return data;
+        return await res.json();
       } catch (e) {
         return null;
       }
@@ -320,12 +640,14 @@
     async function fetchRealtime() {
       try {
         const res = await fetch('/api/realtime');
-        const data = await res.json();
-        return data;
+        return await res.json();
       } catch (e) {
         return null;
       }
     }
+
+    let lastUpdateTime = 0;
+    const UPDATE_INTERVAL = 1000 / 60;
 
     function update60Hz(timestamp) {
       if (timestamp - lastUpdateTime >= UPDATE_INTERVAL) {
@@ -368,6 +690,12 @@
     updateTiles();
     requestAnimationFrame(update60Hz);
     setInterval(updateTiles, 1000);
+
+    // Window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   </script>
 </body>
 </html>
